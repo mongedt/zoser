@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض الدرجات - Zoser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+    
+    <div class="container">
+        <div class="logo">
+            <h1>Zoser</h1>
+            <p>نظام إدارة الدرجات المدرسية</p>
+        </div>
+        
+        <div class="card">
+            <div class="welcome-section">
+                <h2 id="userName">درجات الطالب</h2>
+                <p id="gradeTypeTitle">جدول الدرجات للمواد الدراسية</p>
+            </div>
+            
+            <table class="grades-table">
+                <thead>
+                    <tr>
+                        <th>المادة</th>
+                        <th>الدرجة</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesTableBody">
+                    <!-- سيتم ملء الجدول بواسطة JavaScript -->
+                </tbody>
+            </table>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="goBack()" style="max-width: 200px;">العودة للوحة التحكم</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="theme.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول
+        window.addEventListener('load', function() {
+            const currentUser = localStorage.getItem('currentUser');
+            const selectedGradeType = localStorage.getItem('selectedGradeType');
+            
+            if (!currentUser) {
+                // إذا لم يكن هناك مستخدم مسجل، يتم التوجه إلى صفحة تسجيل الدخول
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            if (!selectedGradeType) {
+                // إذا لم يتم تحديد نوع الدرجات، يتم التوجه إلى لوحة التحكم
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // عرض بيانات المستخدم والدرجات
+            const user = JSON.parse(currentUser);
+            displayGrades(user, selectedGradeType);
+        });
+        
+        function displayGrades(user, gradeType) {
+            // عرض اسم المستخدم ونوع الدرجات
+            document.getElementById('userName').textContent = `درجات الطالب: ${user.username}`;
+            
+            // تحديد عنوان نوع الدرجات
+            const gradeTypeTitles = {
+                'اسبوعية': 'الدرجات الأسبوعية',
+                'شهرية': 'الدرجات الشهرية',
+                'نص_السنة': 'درجات نصف السنة',
+                'اخر_السنة': 'درجات آخر السنة'
+            };
+            
+            document.getElementById('gradeTypeTitle').textContent = gradeTypeTitles[gradeType] || 'جدول الدرجات للمواد الدراسية';
+            
+            // الحصول على الدرجات المحددة
+            const grades = user.grades[gradeType];
+            
+            if (!grades) {
+                document.getElementById('gradesTableBody').innerHTML = '<tr><td colspan="2" style="text-align: center; color: #c33;">لا توجد درجات متاحة لهذا النوع</td></tr>';
+                return;
+            }
+            
+            // الحصول على جدول الدرجات
+            const tableBody = document.getElementById('gradesTableBody');
+            tableBody.innerHTML = '';
+            
+            // إضافة كل مادة ودرجتها إلى الجدول
+            Object.entries(grades).forEach(([subject, grade]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="subject-name">${subject}</td>
+                    <td class="grade-value">${grade}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function goBack() {
+            // العودة إلى لوحة التحكم
+            window.location.href = 'dashboard.html';
+        }
+        
+        function logout() {
+            // حذف بيانات المستخدم من localStorage
+            localStorage.removeItem('currentUser');
+            
+            // التوجه إلى صفحة تسجيل الدخول
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

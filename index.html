@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoser - نظام إدارة الدرجات</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Zoser</h1>
+            <p>نظام إدارة الدرجات المدرسية</p>
+        </div>
+        
+        <div class="card">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">تسجيل الدخول</h2>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">اسم المستخدم:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">كلمة المرور:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn">تسجيل الدخول</button>
+            </form>
+            
+            <div id="alert" class="alert" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="theme.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const alertDiv = document.getElementById('alert');
+            
+            try {
+                // قراءة ملف JSON
+                const response = await fetch('data.json');
+                const data = await response.json();
+                
+                // البحث عن المستخدم
+                const user = data.users.find(u => u.username === username && u.password === password);
+                
+                if (user) {
+                    // حفظ بيانات المستخدم في localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    
+                    // الانتقال إلى صفحة dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // عرض رسالة خطأ
+                    alertDiv.textContent = 'بيانات الدخول غير صحيحة';
+                    alertDiv.className = 'alert alert-error';
+                    alertDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('خطأ في قراءة البيانات:', error);
+                alertDiv.textContent = 'حدث خطأ في النظام';
+                alertDiv.className = 'alert alert-error';
+                alertDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
